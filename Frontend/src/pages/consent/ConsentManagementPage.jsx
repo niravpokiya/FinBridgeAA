@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useLocation } from 'react-router-dom'
 import { Shield, Plus, Search, Filter, CheckCircle, Clock, AlertCircle, X } from 'lucide-react'
 import { consentAPI } from '../../lib/api'
 import { useAuthStore } from '../../store/authStore'
@@ -7,11 +8,11 @@ import Card from '../../components/ui/Card'
 import CardHeader from '../../components/ui/Card'
 import CardTitle from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
-import Input from '../../components/ui/Input'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import CreateConsentModal from '../../components/consent/CreateConsentModal'
 
 export default function ConsentManagementPage() {
+  const location = useLocation()
   const { user } = useAuthStore()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -19,11 +20,20 @@ export default function ConsentManagementPage() {
   
   const queryClient = useQueryClient()
 
-  const { data: consents, isLoading } = useQuery({
+  const { data: consents, isLoading, error } = useQuery({
     queryKey: ['userConsents', filterStatus],
-    queryFn: () => consentAPI.getActiveConsents(user?.id || 'current-user-id'),
-    enabled: !!user,
+    queryFn: () => consentAPI.getActiveConsent(user?.id || 'current-user-id'),
+    enabled: !!user && location.pathname === '/consents', // Only fetch when on consents page
+    retry: 1,
   })
+
+  // Debug logging
+  React.useEffect(() => {
+    console.log('Consents data:', consents)
+    console.log('Consents error:', error)
+    console.log('User data:', user)
+    console.log('Current path:', location.pathname)
+  }, [consents, error, user, location.pathname])
 
   const revokeConsentMutation = useMutation({
     mutationFn: consentAPI.declineConsent,
@@ -43,7 +53,26 @@ export default function ConsentManagementPage() {
                          consent.id?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = filterStatus === 'all' || consent.status === filterStatus
     return matchesSearch && matchesFilter
-  }) || []
+  }) || 
+  // Fallback sample data when API fails or returns no data
+  (error ? [
+    {
+      id: 'SAMPLE-001',
+      fiName: 'HDFC Bank',
+      status: 'ACTIVE',
+      createdDate: '2024-01-15',
+      expiryDate: '2024-04-15',
+      dataTypes: ['Account Balance', 'Transaction History']
+    },
+    {
+      id: 'SAMPLE-002', 
+      fiName: 'ICICI Bank',
+      status: 'EXPIRED',
+      createdDate: '2023-12-01',
+      expiryDate: '2024-01-01',
+      dataTypes: ['Account Balance']
+    }
+  ] : [])
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -73,14 +102,39 @@ export default function ConsentManagementPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center p-6">
         <LoadingSpinner size="lg" />
       </div>
     )
   }
 
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-error-50 border border-error-200 rounded-lg p-6">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-error-600 mr-2" />
+              <h3 className="text-lg font-medium text-error-900">Error loading consents</h3>
+            </div>
+            <p className="text-error-700 mt-2">
+              {error.message || 'Failed to load consent data. Please try again later.'}
+            </p>
+            <Button 
+              onClick={() => queryClient.invalidateQueries(['userConsents'])}
+              className="mt-4"
+              variant="outline"
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -175,13 +229,16 @@ export default function ConsentManagementPage() {
           <div className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
-                <Input
-                  placeholder="Search by institution name or consent ID..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                  leftIcon={<Search className="w-4 h-4" />}
-                />
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by institution name or consent ID..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full input"
+                  />
+                </div>
               </div>
               <div className="flex gap-2">
                 <select

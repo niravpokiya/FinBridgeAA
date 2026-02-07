@@ -66,7 +66,11 @@ export default function LoansPage() {
   }
 
   if (isLoading) {
-    return <LoadingSpinner />
+    return (
+      <div className="flex items-center justify-center p-6">
+        <LoadingSpinner />
+      </div>
+    )
   }
 
   return (

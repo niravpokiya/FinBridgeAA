@@ -20,6 +20,9 @@ function App() {
     checkAuth()
   }, [checkAuth])
 
+  // Temporarily bypass authentication for testing
+  const isAuthTemp = true // isAuthenticated
+
   if (isLoading) {
     return <LoadingSpinner />
   }
@@ -30,78 +33,28 @@ function App() {
         {/* Public Routes */}
         <Route 
           path="/" 
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />} 
+          element={isAuthTemp ? <Navigate to="/dashboard" /> : <LandingPage />} 
         />
         <Route 
           path="/login" 
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
+          element={isAuthTemp ? <Navigate to="/dashboard" /> : <LoginPage />} 
         />
         <Route 
           path="/register" 
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />} 
+          element={isAuthTemp ? <Navigate to="/dashboard" /> : <RegisterPage />} 
         />
 
-        {/* Protected Routes */}
+        {/* Protected Routes with Layout */}
         <Route 
-          path="/dashboard" 
-          element={
-            isAuthenticated ? (
-              <Layout>
-                <DashboardPage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        <Route 
-          path="/loans" 
-          element={
-            isAuthenticated ? (
-              <Layout>
-                <LoansPage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        <Route 
-          path="/budget" 
-          element={
-            isAuthenticated ? (
-              <Layout>
-                <BudgetPage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        <Route 
-          path="/profile" 
-          element={
-            isAuthenticated ? (
-              <Layout>
-                <ProfilePage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        <Route 
-          path="/consents" 
-          element={
-            isAuthenticated ? (
-              <Layout>
-                <ConsentManagementPage />
-              </Layout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
+          path="/" 
+          element={isAuthTemp ? <Layout /> : <Navigate to="/login" />}
+        >
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="loans" element={<LoansPage />} />
+          <Route path="budget" element={<BudgetPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="consents" element={<ConsentManagementPage />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />

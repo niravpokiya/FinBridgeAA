@@ -67,26 +67,103 @@ export const budgetAPI = {
 // Consent API
 export const consentAPI = {
   // Get pending consent requests from FIPs
-  getConsentRequests: () => api.get('/consent/requests'),
+  getConsentRequests: () => {
+    console.log('Returning dummy consent requests')
+    return Promise.resolve({
+      data: [
+        {
+          id: 'REQ-001',
+          fiName: 'HDFC Bank',
+          purpose: 'Account aggregation for loan eligibility',
+          createdDate: '2024-01-20',
+          expiryDate: '2024-04-20',
+          status: 'PENDING',
+          dataTypes: ['Account Balance', 'Transaction History']
+        }
+      ]
+    })
+  },
   
   // Get user's active consents
-  getActiveConsent: (userId) => api.get(`/consent/consents/${userId}`),
+  getActiveConsent: (userId) => {
+    console.log(`Returning dummy active consents for user: ${userId}`)
+    return Promise.resolve({
+      data: [
+        {
+          id: 'CONSENT-001',
+          fiName: 'HDFC Bank',
+          status: 'ACTIVE',
+          createdDate: '2024-01-15',
+          expiryDate: '2024-04-15',
+          dataTypes: ['Account Balance', 'Transaction History']
+        },
+        {
+          id: 'CONSENT-002', 
+          fiName: 'ICICI Bank',
+          status: 'EXPIRED',
+          createdDate: '2023-12-01',
+          expiryDate: '2024-01-01',
+          dataTypes: ['Account Balance']
+        },
+        {
+          id: 'CONSENT-003',
+          fiName: 'SBI Bank',
+          status: 'REVOKED',
+          createdDate: '2023-11-15',
+          expiryDate: '2024-02-15',
+          dataTypes: ['Account Balance', 'Transaction History', 'Loan Details']
+        }
+      ]
+    })
+  },
   
   // Approve a consent request
-  approveConsent: (consentId) => api.post(`/consent/consents/${consentId}/approve`),
+  approveConsent: (consentId) => {
+    console.log(`Dummy approve consent: ${consentId}`)
+    return Promise.resolve({ success: true })
+  },
   
   // Reject a consent request
-  rejectConsent: (consentId) => api.post(`/consent/consents/${consentId}/reject`),
+  rejectConsent: (consentId) => {
+    console.log(`Dummy reject consent: ${consentId}`)
+    return Promise.resolve({ success: true })
+  },
   
   // Revoke an active consent
-  revokeConsent: (consentId) => api.post(`/consent/consents/${consentId}/revoke`),
+  revokeConsent: (consentId) => {
+    console.log(`Dummy revoke consent: ${consentId}`)
+    return Promise.resolve({ success: true })
+  },
   
   // Get consent history
-  getConsentHistory: (userId) => api.get(`/consent/consents/${userId}/history`),
+  getConsentHistory: (userId) => {
+    console.log(`Returning dummy consent history for user: ${userId}`)
+    return Promise.resolve({
+      data: [
+        {
+          id: 'HIST-001',
+          action: 'CREATED',
+          consentId: 'CONSENT-001',
+          timestamp: '2024-01-15T10:30:00Z',
+          details: 'Consent created with HDFC Bank'
+        }
+      ]
+    })
+  },
   
   // Legacy endpoints (for backward compatibility)
-  createConsent: (data) => api.post('/consent/consents', data),
-  declineConsent: (consentId) => api.post(`/consent/consents/${consentId}/decline`),
+  createConsent: (data) => {
+    console.log('Dummy create consent:', data)
+    return Promise.resolve({ 
+      success: true, 
+      id: `CONSENT-${Date.now()}`,
+      ...data 
+    })
+  },
+  declineConsent: (consentId) => {
+    console.log(`Dummy decline consent: ${consentId}`)
+    return Promise.resolve({ success: true })
+  },
 }
 
 // Account Aggregator API

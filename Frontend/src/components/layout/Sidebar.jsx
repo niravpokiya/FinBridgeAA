@@ -16,13 +16,13 @@ import {
 import { useState } from 'react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Loans', href: '/loans', icon: CreditCard },
-  { name: 'Budget', href: '/budget', icon: PieChart },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
-  { name: 'Consents', href: '/consents', icon: Shield },
-  { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: 'http://localhost:5173/dashboard', icon: Home },
+  { name: 'Loans', href: 'http://localhost:5173/loans', icon: CreditCard },
+  { name: 'Budget', href: 'http://localhost:5173/budget', icon: PieChart },
+  { name: 'Analytics', href: 'http://localhost:5173/analytics', icon: TrendingUp },
+  { name: 'Consents', href: 'http://localhost:5173/consents', icon: Shield },
+  { name: 'Profile', href: 'http://localhost:5173/profile', icon: User },
+  { name: 'Settings', href: 'http://localhost:5173/settings', icon: Settings },
 ]
 
 export default function Sidebar() {
